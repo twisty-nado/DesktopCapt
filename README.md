@@ -36,8 +36,8 @@ I used the algorithm to remove the background from TransparentScreenshot
 
 ## FAQ
 
-- How do you screenshot the taskbar?
-Use AeroShot to screenshot it. Quite literally, click on it and press ALT + PrtSc
+Q - How do you screenshot the taskbar?
+A - Use AeroShot to screenshot it. Quite literally, click on it and press ALT + PrtSc
 
 ## Final notes
 
