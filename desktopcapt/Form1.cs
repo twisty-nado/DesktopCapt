@@ -50,6 +50,22 @@ namespace desktopcapt
         [DllImport("user32.dll")]
         private static extern IntPtr GetShellWindow();
 
+        // NEW: DPI awareness imports
+        [DllImport("user32.dll")]
+        private static extern bool SetProcessDPIAware();
+
+        [DllImport("shcore.dll")]
+        private static extern int SetProcessDpiAwareness(int value);
+
+        [DllImport("gdi32.dll")]
+        private static extern int GetDeviceCaps(IntPtr hdc, int nIndex);
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetDC(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        private static extern int ReleaseDC(IntPtr hWnd, IntPtr hDC);
+
         private delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
 
         [StructLayout(LayoutKind.Sequential)]
@@ -69,6 +85,11 @@ namespace desktopcapt
         private const int SW_SHOW = 5;
         private const uint GW_HWNDNEXT = 2;
 
+        // NEW: DPI constants
+        private const int PROCESS_PER_MONITOR_DPI_AWARE = 2;
+        private const int LOGPIXELSX = 88;
+        private const int LOGPIXELSY = 90;
+
         private PictureBox pictureBox;
         private Button btnCapture;
         private Button btnSave;
@@ -80,14 +101,59 @@ namespace desktopcapt
 
         public Form1()
         {
+            // NEW: Set DPI awareness before anything else
+            SetDPIAwareness();
+
             InitializeComponent();
             SetupUI();
             CreateTempWallpapers();
         }
 
+        // NEW: Method to set DPI awareness
+        private void SetDPIAwareness()
+        {
+            try
+            {
+                // Try Windows 8.1+ method first
+                SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE);
+            }
+            catch
+            {
+                try
+                {
+                    // Fall back to Windows Vista+ method
+                    SetProcessDPIAware();
+                }
+                catch { }
+            }
+        }
+
+        // NEW: Get actual physical screen dimensions (not scaled)
+        private void GetActualScreenDimensions(out int width, out int height)
+        {
+            IntPtr hdc = GetDC(IntPtr.Zero);
+            width = GetDeviceCaps(hdc, LOGPIXELSX);
+            height = GetDeviceCaps(hdc, LOGPIXELSY);
+            ReleaseDC(IntPtr.Zero, hdc);
+
+            // Get the actual resolution
+            width = Screen.PrimaryScreen.Bounds.Width;
+            height = Screen.PrimaryScreen.Bounds.Height;
+
+            // Apply DPI scaling factor
+            using (Graphics g = Graphics.FromHwnd(IntPtr.Zero))
+            {
+                float dpiX = g.DpiX / 96f; // 96 is the default DPI
+                float dpiY = g.DpiY / 96f;
+
+                width = (int)(width * dpiX);
+                height = (int)(height * dpiY);
+            }
+        }
+
         private void SetupUI()
         {
-            this.Text = "desktopcapt";
+            this.Text = "DesktopCapt";
             this.Size = new Size(900, 700);
             this.StartPosition = FormStartPosition.CenterScreen;
 
@@ -104,7 +170,7 @@ namespace desktopcapt
             // Save button
             btnSave = new Button
             {
-                Text = "Save to Desktop",
+                Text = "Save image...",
                 Location = new Point(230, 20),
                 Size = new Size(200, 40),
                 Font = new Font("Segoe UI", 10, FontStyle.Bold),
@@ -119,7 +185,7 @@ namespace desktopcapt
                 Location = new Point(440, 25),
                 Size = new Size(220, 30),
                 Font = new Font("Segoe UI", 9),
-                Checked = false
+                Checked = true
             };
 
             // Picture box for preview
@@ -146,9 +212,8 @@ namespace desktopcapt
                 tempBlackPath = Path.Combine(tempFolder, "temp_black_wallpaper.bmp");
                 tempWhitePath = Path.Combine(tempFolder, "temp_white_wallpaper.bmp");
 
-                // Get actual screen resolution
-                int screenWidth = Screen.PrimaryScreen.Bounds.Width;
-                int screenHeight = Screen.PrimaryScreen.Bounds.Height;
+                // UPDATED: Get actual DPI-aware screen resolution
+                GetActualScreenDimensions(out int screenWidth, out int screenHeight);
 
                 // Create solid black wallpaper
                 using (Bitmap blackBmp = new Bitmap(screenWidth, screenHeight))
@@ -216,19 +281,15 @@ namespace desktopcapt
 
         private IntPtr FindDesktopIconWindow()
         {
-            // First, try to find the WorkerW window that contains the icons
-            // On Windows 10+, icons are usually in a WorkerW window, not Progman
             IntPtr progman = FindWindow("Progman", null);
             IntPtr workerW = IntPtr.Zero;
 
-            // Find the WorkerW window that comes after Progman
             IntPtr tempWorkerW = IntPtr.Zero;
             do
             {
                 tempWorkerW = FindWindowEx(IntPtr.Zero, tempWorkerW, "WorkerW", null);
                 if (tempWorkerW != IntPtr.Zero)
                 {
-                    // Check if this WorkerW has a SHELLDLL_DefView child (contains desktop icons)
                     IntPtr shellView = FindWindowEx(tempWorkerW, IntPtr.Zero, "SHELLDLL_DefView", null);
                     if (shellView != IntPtr.Zero)
                     {
@@ -238,21 +299,19 @@ namespace desktopcapt
                 }
             } while (tempWorkerW != IntPtr.Zero);
 
-            // If we found a WorkerW with icons, use that; otherwise fall back to Progman
             return workerW != IntPtr.Zero ? workerW : progman;
         }
 
         private Bitmap CaptureProgman()
         {
-            // Get screen dimensions
-            int screenWidth = Screen.PrimaryScreen.Bounds.Width;
-            int screenHeight = Screen.PrimaryScreen.Bounds.Height;
+            // UPDATED: Get DPI-aware screen dimensions
+            GetActualScreenDimensions(out int screenWidth, out int screenHeight);
 
             Bitmap screenshot = new Bitmap(screenWidth, screenHeight, PixelFormat.Format32bppArgb);
 
             using (Graphics g = Graphics.FromImage(screenshot))
             {
-                // Capture directly from screen
+                // Capture directly from screen with proper DPI handling
                 g.CopyFromScreen(0, 0, 0, 0, new Size(screenWidth, screenHeight), CopyPixelOperation.SourceCopy);
             }
 
@@ -529,13 +588,41 @@ namespace desktopcapt
 
             try
             {
-                string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-                string fileName = $"Desktop_Icons_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.png";
-                string fullPath = Path.Combine(desktopPath, fileName);
+                using (SaveFileDialog saveDialog = new SaveFileDialog())
+                {
+                    saveDialog.Title = "Save Desktop Screenshot";
+                    saveDialog.Filter = "PNG Image|*.png|JPEG Image|*.jpg|Bitmap Image|*.bmp|All Files|*.*";
+                    saveDialog.FilterIndex = 1;
+                    saveDialog.DefaultExt = "png";
+                    saveDialog.FileName = $"Desktop_Icons_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.png";
+                    saveDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
 
-                currentScreenshot.Save(fullPath, ImageFormat.Png);
+                    if (saveDialog.ShowDialog() == DialogResult.OK && !string.IsNullOrEmpty(saveDialog.FileName))
+                    {
+                        // Determine format based on file extension
+                        ImageFormat format = ImageFormat.Png;
+                        string ext = Path.GetExtension(saveDialog.FileName).ToLower();
 
-                MessageBox.Show($"Screenshot saved to desktop!\n{fileName}", "Saved");
+                        switch (ext)
+                        {
+                            case ".jpg":
+                            case ".jpeg":
+                                format = ImageFormat.Jpeg;
+                                break;
+                            case ".bmp":
+                                format = ImageFormat.Bmp;
+                                break;
+                            default:
+                                format = ImageFormat.Png;
+                                break;
+                        }
+
+                        currentScreenshot.Save(saveDialog.FileName, format);
+
+                        MessageBox.Show($"Screenshot saved!\n{Path.GetFileName(saveDialog.FileName)}",
+                            "Saved", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                }
             }
             catch (Exception ex)
             {
