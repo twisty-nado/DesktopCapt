@@ -1,0 +1,8 @@
+C:\Users\twisty\source\repos\desktopcapt\desktopcapt\bin\Release\desktopcapt.exe
+C:\Users\twisty\source\repos\desktopcapt\desktopcapt\bin\Release\desktopcapt.pdb
+C:\Users\twisty\source\repos\desktopcapt\desktopcapt\obj\Release\desktopcapt.Properties.Resources.resources
+C:\Users\twisty\source\repos\desktopcapt\desktopcapt\obj\Release\desktopcapt.csproj.GenerateResource.cache
+C:\Users\twisty\source\repos\desktopcapt\desktopcapt\obj\Release\desktopcapt.csproj.CoreCompileInputs.cache
+C:\Users\twisty\source\repos\desktopcapt\desktopcapt\obj\Release\desktopcapt.exe
+C:\Users\twisty\source\repos\desktopcapt\desktopcapt\obj\Release\desktopcapt.pdb
+C:\Users\twisty\source\repos\desktopcapt\desktopcapt\obj\Release\desktopcapt.csproj.AssemblyReference.cache
