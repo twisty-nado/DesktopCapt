@@ -17,7 +17,8 @@ To capture an image, quite literally just press the Capture Desktop Icons.
 
 <img width="214" height="53" alt="image" src="https://github.com/user-attachments/assets/0e3813ba-2d31-4b9c-91ae-3aa1691b2e99" />
 
-I will eventually in the future add saving to any directory, but right now, I'm lazy.
+<s>I will eventually in the future add saving to any directory, but right now, I'm lazy.</s>
+### YOU CAN NOW SAVE ANYWHERE!
 
 ## <i><s>Limitations
 
