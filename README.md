@@ -16,13 +16,14 @@ To capture an image, quite literally just press the Capture Desktop Icons.
 
 I will eventually in the future add saving to any directory, but right now, I'm lazy.
 
-## Limitations
+<i><s>## Limitations
 
 I noticed something on Windows 7. It kept the start button.
 
-<img width="1440" height="900" alt="Desktop_Icons_2025-12-01_20-19-36" src="https://github.com/user-attachments/assets/1a3c6456-3017-4224-988a-314c1ae02cde" />
-
 However, anyone with a functional membrane would know to just remove it in something like <a href="https://www.getpaint.net/">Paint.NET</a>
+</s></i>
+
+### THIS IS FIXED NOW. THIS WAS WITH AN OLDER, DEV VERSION OF THE SOFTWARE
 
 ## Credits
 
