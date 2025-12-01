@@ -4,6 +4,9 @@ Basically, this is a tool for capturing the ProgMan (yet that implementation did
 
 I've tested it on Windows 7 and Windows 10. It should work on anything that can run .NET Framework 3.0.
 
+# <a href="https://github.com/twisty-nado/DesktopCapt/releases/tag/release">DOWNLOAD HERE!</a>
+(Takes you to the releases)
+
 <img width="886" height="693" alt="image" src="https://github.com/user-attachments/assets/a20ef347-ffee-4a6c-99d3-4a68e92fd3db" />
 
 ## Usage
