@@ -16,7 +16,7 @@ To capture an image, quite literally just press the Capture Desktop Icons.
 
 I will eventually in the future add saving to any directory, but right now, I'm lazy.
 
-<i><s>## Limitations
+## <i><s>Limitations
 
 I noticed something on Windows 7. It kept the start button.
 
