@@ -12,3 +12,7 @@ However, anyone with a functional membrane would know to just remove it in somet
 
 I'd like to thank toehead2001 for their source code to <a href="https://github.com/toehead2001/aeroshot/">AeroShot</a>, and Cvolton for their source code to <a href="https://github.com/Cvolton/TransparentScreenshot/">TransparentScreenshot</a>.
 I used the algorithm to remove the background from TransparentScreenshot
+
+### Final notes
+
+I haven't tested this program much, and I doubt I'll fix any bugs that occur. Feel free to fork this mess!
